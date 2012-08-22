@@ -1,0 +1,78 @@
+﻿<phone:PhoneApplicationPage 
+    x:Class="MoneyBurnDown.View.ShowBurndownView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+    xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:controls="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:BindableApplicationBar="clr-namespace:BindableApplicationBar;assembly=BindableApplicationBar"
+    xmlns:Controls="clr-namespace:MoneyBurnDown.Controls"
+    xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+    xmlns:Command="clr-namespace:GalaSoft.MvvmLight.Command;assembly=GalaSoft.MvvmLight.Extras.WP71"
+    FontFamily="{StaticResource PhoneFontFamilyNormal}"
+    FontSize="{StaticResource PhoneFontSizeNormal}"
+    Foreground="{StaticResource PhoneForegroundBrush}"
+    SupportedOrientations="Portrait" Orientation="Portrait"
+    mc:Ignorable="d" d:DesignHeight="696" d:DesignWidth="480"
+    DataContext="{Binding ShowBurndown, Source={StaticResource Locator}}"
+    shell:SystemTray.IsVisible="True">
+    <!--LayoutRoot is the root grid where all page content is placed-->
+    <Grid x:Name="LayoutRoot" Background="Transparent">
+        <!--Pivot Control-->
+        <controls:Pivot Title="{Binding CurrentBurndown.Name}">
+            <controls:PivotItem Header="Burndown info">
+                <StackPanel>
+                    <TextBlock Text="{Binding ExpectedDailyExpences, StringFormat='Expected daily expences: {0:00.00}'}" Style="{StaticResource PhoneTextNormalStyle}"/>
+                    <TextBlock Text="{Binding AverageDailyExpences, StringFormat='Average daily expences: {0:00.00}'}" Style="{StaticResource PhoneTextNormalStyle}"/>
+                </StackPanel>
+            </controls:PivotItem>
+
+            <controls:PivotItem Header="Expenses">
+                <ListBox ItemsSource="{Binding Transactions}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Margin="0,0,0,17">
+                                <TextBlock Text="{Binding CreatedAt, StringFormat='Date: {0:dd-MM-yy}'}" TextWrapping="Wrap" Style="{StaticResource PhoneTextLargeStyle}"/>
+                                <TextBlock Text="{Binding Amount, StringFormat='Amount: {0}'}" TextWrapping="Wrap" Margin="12,-6,12,0" Style="{StaticResource PhoneTextNormalStyle}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </controls:PivotItem>
+
+            <controls:PivotItem Header="Daily expenses">
+                <ListBox ItemsSource="{Binding DailyExpenses}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Margin="0,0,0,17">
+                                <TextBlock Text="{Binding Key, StringFormat='Date: {0:dd-MM-yy}'}" TextWrapping="Wrap" Style="{StaticResource PhoneTextLargeStyle}"/>
+                                <TextBlock Text="{Binding Value, StringFormat='Amount: {0}'}" TextWrapping="Wrap" Margin="12,-6,12,0" Style="{StaticResource PhoneTextNormalStyle}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </controls:PivotItem>
+
+            <controls:PivotItem Header="Burndown chart">
+                <Controls:ChartControl x:Name="chartControl" Margin="8" Burndown="{Binding CurrentBurndown}">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="DoubleTapped">
+                            <Command:EventToCommand Command="{Binding ToogleFullscreenCommand}"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </Controls:ChartControl>
+            </controls:PivotItem>
+        </controls:Pivot>
+
+    </Grid>
+
+    <BindableApplicationBar:Bindable.ApplicationBar>
+        <BindableApplicationBar:BindableApplicationBar IsVisible="True" IsMenuEnabled="True">
+            <BindableApplicationBar:BindableApplicationBarButton IconUri="\Images\appbar.add.rest.png" Text="Expence" Command="{Binding CreateNewCommand}"/>
+            <BindableApplicationBar:BindableApplicationBarButton IconUri="\Images\appbar.fullscreen.rest.png" Text="Fullscreen" Command="{Binding ToogleFullscreenCommand}"/>
+        </BindableApplicationBar:BindableApplicationBar>
+    </BindableApplicationBar:Bindable.ApplicationBar>
+
+</phone:PhoneApplicationPage>

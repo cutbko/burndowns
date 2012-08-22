@@ -1,0 +1,84 @@
+﻿<phone:PhoneApplicationPage 
+    x:Class="MoneyBurnDown.View.CreateBurndownView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+    xmlns:phoneToolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
+    xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    FontFamily="{StaticResource PhoneFontFamilyNormal}"
+    FontSize="{StaticResource PhoneFontSizeNormal}"
+    Foreground="{StaticResource PhoneForegroundBrush}"
+    SupportedOrientations="Portrait" Orientation="Portrait"
+    mc:Ignorable="d" d:DesignHeight="768" d:DesignWidth="480"
+    shell:SystemTray.IsVisible="True"
+    DataContext="{Binding CreateBurndown, Source={StaticResource Locator}}"
+    >
+
+    <!--LayoutRoot is the root grid where all page content is placed-->
+    <Grid x:Name="LayoutRoot" Background="Transparent">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!--TitlePanel contains the name of the application and page title-->
+        <StackPanel x:Name="TitlePanel" Grid.Row="0" Margin="12,17,0,28">
+            <TextBlock x:Name="ApplicationTitle" 
+                       Text="{StaticResource AppName}" 
+                       Style="{StaticResource PhoneTextNormalStyle}"/>
+            <TextBlock x:Name="PageTitle" 
+                       Text="new burndown"
+                       Margin="9,-7,0,0"
+                       Style="{StaticResource PhoneTextTitle1Style}"/>
+        </StackPanel>
+
+        <!--ContentPanel - place additional content here-->
+        <StackPanel x:Name="ContentPanel" Grid.Row="1" Margin="12,0,12,0">
+            <TextBlock Text="Burndown name"
+                       Style="{StaticResource PhoneTextNormalStyle}"/>
+            <TextBox Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=Explicit}"
+                     TextChanged="TextBoxTextChanged"/>
+            <TextBlock Text="Start date"
+                       Style="{StaticResource PhoneTextNormalStyle}"/>
+            <phoneToolkit:DatePicker Value="{Binding StartDate, Mode=TwoWay, UpdateSourceTrigger=Explicit}" 
+                                     ValueChanged="DateTimePickerBase_OnValueChanged" />
+            <TextBlock Text="Due date" 
+                       Style="{StaticResource PhoneTextNormalStyle}"/>
+            <phoneToolkit:DatePicker Value="{Binding EndDate, Mode=TwoWay, UpdateSourceTrigger=Explicit}" 
+                                     ValueChanged="DateTimePickerBase_OnValueChanged"/>
+            <TextBlock Text="Transaction type" 
+                       Style="{StaticResource PhoneTextNormalStyle}"/>
+            <phoneToolkit:ListPicker ItemsSource="{Binding BurndownTypes}" 
+                                     SelectedItem="{Binding BurndownType}"
+                                     FullModeHeader="Select type"
+                                     SelectionChanged="ListPickerSelectionChanged">
+                <phoneToolkit:ListPicker.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Name}"/>
+                    </DataTemplate>
+                </phoneToolkit:ListPicker.ItemTemplate>
+                <phoneToolkit:ListPicker.FullModeItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Name}" 
+                                   Style="{StaticResource PhoneTextLargeStyle}"/>
+                    </DataTemplate>
+                </phoneToolkit:ListPicker.FullModeItemTemplate>
+            </phoneToolkit:ListPicker>
+            <TextBlock Text="Money to spend" 
+                       Style="{StaticResource PhoneTextNormalStyle}"/>
+            <TextBox Text="{Binding MoneyToSpend, Mode=TwoWay, UpdateSourceTrigger=Explicit}" 
+                     TextChanged="TextBoxTextChanged">
+                <TextBox.InputScope>
+                    <InputScope>
+                        <InputScopeName NameValue="Number"/>
+                    </InputScope>
+                </TextBox.InputScope>
+            </TextBox>
+            <TextBlock Name="ValidationError" Foreground="Red"/>
+            <Button x:Name="CreateButton" Content="Create" IsEnabled="False" Command="{Binding CreateCommand}"/>
+        </StackPanel>
+    </Grid>
+    
+</phone:PhoneApplicationPage>
