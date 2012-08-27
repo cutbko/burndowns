@@ -39,6 +39,24 @@
             <phoneToolkit:DatePicker Name="TranDate"
                                      Value="{Binding TransactionDate, Mode=TwoWay, UpdateSourceTrigger=Explicit}" 
                                      ValueChanged="TranDateValueChanged"/>
+            <TextBlock Text="Expence type"
+                       Style="{StaticResource PhoneTextNormalStyle}"/>
+            <phoneToolkit:ListPicker ItemsSource="{Binding TransactionTypes}" 
+                                     SelectedIndex="{Binding TransactionType, Mode=TwoWay}"
+                                     FullModeHeader="Select expence type"
+                                     >
+                <phoneToolkit:ListPicker.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Value}"/>
+                    </DataTemplate>
+                </phoneToolkit:ListPicker.ItemTemplate>
+                <phoneToolkit:ListPicker.FullModeItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Value}" 
+                                   Style="{StaticResource PhoneTextLargeStyle}"/>
+                    </DataTemplate>
+                </phoneToolkit:ListPicker.FullModeItemTemplate>
+            </phoneToolkit:ListPicker>
             <TextBlock Text="Money amount"
                        Style="{StaticResource PhoneTextNormalStyle}"/>
             <TextBox Text="{Binding Amount, Mode=TwoWay, UpdateSourceTrigger=Explicit}"

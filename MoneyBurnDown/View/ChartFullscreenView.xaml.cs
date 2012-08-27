@@ -11,16 +11,48 @@ using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using GalaSoft.MvvmLight.Messaging;
 using Microsoft.Phone.Controls;
+using Microsoft.Xna.Framework.Input.Touch;
 using MoneyBurnDown.ViewModel;
+using GestureEventArgs = Microsoft.Phone.Controls.GestureEventArgs;
 
 namespace MoneyBurnDown.View
 {
     public partial class ChartFullscreenView : PhoneApplicationPage
     {
+        private bool _isScaleStarted;
         public ChartFullscreenView()
         {
             InitializeComponent();
+            Touch.FrameReported += TouchFrameReported;
+            TouchPanel.EnabledGestures = GestureType.FreeDrag | GestureType.VerticalDrag | GestureType.HorizontalDrag | GestureType.Pinch | GestureType.PinchComplete;
+
         }
+
+        #region REWRITE THIS!
+        void TouchFrameReported(object sender, TouchFrameEventArgs e)
+        {
+
+            while (TouchPanel.IsGestureAvailable)
+            {
+                GestureSample gestureSample = TouchPanel.ReadGesture();
+                if(gestureSample.GestureType == GestureType.Pinch)
+                {
+                    if(!_isScaleStarted)
+                    {
+                        ScaleTransform.CenterX = (gestureSample.Position.X + gestureSample.Position2.X) / 2;
+                        ScaleTransform.CenterY = (gestureSample.Position.Y + gestureSample.Position2.Y) / 2;
+                        _isScaleStarted = true;
+                    }
+                    else
+                    {
+                        ScaleTransform.ScaleX += -0.1;
+                        ScaleTransform.ScaleY += -0.1;
+                    }
+                }
+            }
+        }
+        #endregion
+
 
         protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
         {

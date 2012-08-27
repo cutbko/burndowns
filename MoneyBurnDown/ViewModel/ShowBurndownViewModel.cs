@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Windows.Input;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
+using Microsoft.Phone.Shell;
+using MoneyBurnDown.Infrastructure;
 using MoneyBurnDown.Model;
 using MoneyBurnDown.Model.Entities;
 using MoneyBurnDown.Model.Messages;
@@ -18,6 +21,10 @@ namespace MoneyBurnDown.ViewModel
         private Burndown _currentBurndown;
         private ICommand _createNewCommand;
         private ICommand _toogleFullscreenCommand;
+        private int _selectedPivot;
+        private ICommand _pinCommand;
+
+        private Uri NavigationUri;
 
         public ShowBurndownViewModel(IMoneyDataSource moneyDataSource)
         {
@@ -30,12 +37,20 @@ namespace MoneyBurnDown.ViewModel
                                                                             {
                                                                                 RaisePropertyChanged(() => CurrentBurndown.Transactions);
                                                                                 RaisePropertyChanged(() => DailyExpenses);
+                                                                                RaisePropertyChanged(() => AverageDailyExpences);
+                                                                                RaisePropertyChanged(() => ExpencesByType);
+                                                                                RaisePropertyChanged(() => CurrentBurndown.MoneyLeft);
+                                                                                if(IsPinned)
+                                                                                {
+                                                                                    ShellTile.ActiveTiles.Single(x=>x.NavigationUri == NavigationUri).Update(TileData);
+                                                                                }
                                                                             });
         }
 
         public void Initialize(int burndownId)
         {
             CurrentBurndown = _moneyDataSource.Burndowns.Single(x => x.Id == burndownId);
+            NavigationUri = new Uri(string.Format("/View/ShowBurndownView.xaml?burndownId={0}", burndownId), UriKind.Relative);
         }
 
         public Burndown CurrentBurndown
@@ -50,6 +65,8 @@ namespace MoneyBurnDown.ViewModel
                     RaisePropertyChanged(() => CurrentBurndown.Name);
                     RaisePropertyChanged(() => CurrentBurndown.Transactions);
                     RaisePropertyChanged(() => DailyExpenses);
+                    RaisePropertyChanged(() => AverageDailyExpences);
+                    RaisePropertyChanged(() => ExpencesByType);
                 }
             }
         }
@@ -112,6 +129,27 @@ namespace MoneyBurnDown.ViewModel
             }
         }
 
+        public IEnumerable<KeyValuePair<string, decimal>> ExpencesByType
+        {
+            get
+            {
+                if(CurrentBurndown != null)
+                {
+                    foreach (var source in CurrentBurndown.Transactions.GroupBy(x=>x.TransactionType).ToList())
+                    {
+                        if(source.Key == null)
+                        {
+                            yield return new KeyValuePair<string, decimal>("Not specified", source.Sum(x=>x.Amount));
+                        }
+                        else
+                        {
+                            yield return new KeyValuePair<string, decimal>(source.Key.Name, source.Sum(x=>x.Amount));
+                        }
+                    }
+                }
+            }
+        }
+
         public ICommand CreateNewCommand
         {
             get { return _createNewCommand ?? (_createNewCommand = new RelayCommand(CreateNew)); }
@@ -122,6 +160,44 @@ namespace MoneyBurnDown.ViewModel
             Messenger.Default.Send(new Uri("/View/CreateTransactionView.xaml?burndownId=" + CurrentBurndown.Id, UriKind.Relative), "NavigationRequest");
         }
 
+        public ICommand PinCommand
+        {
+            get { return _pinCommand  ?? (_pinCommand = new RelayCommand(Pin)); }
+        }
+
+        private void Pin()
+        {
+            ShellTile shellTile = ShellTile.ActiveTiles.FirstOrDefault(x => x.NavigationUri == NavigationUri);
+            if(shellTile != null)
+            {
+                shellTile.Delete();
+                OnPinned(false);
+            }
+            else
+            {
+                ShellTile.Create(NavigationUri, TileData);
+                OnPinned(true);
+            }
+        }
+
+        private StandardTileData TileData
+        {
+            get
+            {
+                return new StandardTileData
+                           {
+                               BackTitle = CurrentBurndown.EndDate.ToShortDateString(),
+                               Title = CurrentBurndown.Name,
+                               BackContent = CurrentBurndown.MoneyLeft.ToString(CultureInfo.InvariantCulture)
+                           };
+            }
+        }
+
+        public bool IsPinned
+        {
+            get { return ShellTile.ActiveTiles.FirstOrDefault(x => x.NavigationUri == NavigationUri) != null; }
+        }
+
         public ICommand ToogleFullscreenCommand
         {
             get { return _toogleFullscreenCommand ?? (_toogleFullscreenCommand = new RelayCommand(ToogleFullscreen)); }
@@ -130,6 +206,33 @@ namespace MoneyBurnDown.ViewModel
         private void ToogleFullscreen()
         {
             Messenger.Default.Send(new Uri("/View/ChartFullscreenView.xaml?burndownId=" + CurrentBurndown.Id, UriKind.Relative), "NavigationRequest");
+        }
+
+        public int SelectedPivot
+        {
+            get { return _selectedPivot; }
+            set
+            {
+                if(_selectedPivot != value)
+                {
+                    _selectedPivot = value;
+                    RaisePropertyChanged(() => SelectedPivot);
+                    RaisePropertyChanged(() => IsFullScreenVisible);
+                }
+            }
+        }
+
+        public bool IsFullScreenVisible
+        {
+            get { return SelectedPivot == 3; }
+        }
+
+        public event EventHandler<PinEventArgs> Pinned;
+
+        protected virtual void OnPinned(bool isPinned)
+        {
+            EventHandler<PinEventArgs> handler = Pinned;
+            if (handler != null) handler(this, new PinEventArgs {IsPinned = isPinned});
         }
     }
 }

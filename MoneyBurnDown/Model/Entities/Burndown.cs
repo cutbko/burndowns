@@ -150,5 +150,22 @@ namespace MoneyBurnDown.Model.Entities
 
         [Column(IsVersion = true)]
         private Binary _version;
+
+        private bool? _isDeleted;
+
+        [Column]
+        public virtual bool? IsDeleted
+        {
+            get { return _isDeleted; }
+            set
+            {
+                if(_isDeleted != value)
+                {
+                    NotifyPropertyChanging("IsDeleted");
+                    _isDeleted = value;
+                    NotifyPropertyChanged("IsDeleted");
+                }
+            }
+        }
     }
 }

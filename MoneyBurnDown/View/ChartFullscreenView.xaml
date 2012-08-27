@@ -13,8 +13,18 @@
     mc:Ignorable="d" d:DesignHeight="800" d:DesignWidth="480"
     DataContext="{Binding Chart, Source={StaticResource Locator}}"
 >
-
-    <Controls:ChartControl x:Name="chartControl" Margin="8" Burndown="{Binding CurrentBurndown}"/>
-
+    <Grid x:Name="LayoutRoot">
+        <Controls:ChartCanvas x:Name="chartControl" 
+                              Margin="8" 
+                              Burndown="{Binding CurrentBurndown}"
+                              >
+            <Controls:ChartCanvas.RenderTransform>
+                <TransformGroup>
+                    <TranslateTransform x:Name="TranslateTransform"/>
+                    <ScaleTransform x:Name="ScaleTransform"/>
+                </TransformGroup>
+            </Controls:ChartCanvas.RenderTransform>
+        </Controls:ChartCanvas>
+    </Grid>
 
 </phone:PhoneApplicationPage>

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
 using GalaSoft.MvvmLight.Command;
@@ -16,6 +17,8 @@ namespace MoneyBurnDown.ViewModel
         private DateTime _transactionDate;
         private decimal _amount;
         private ICommand _createNewCommand;
+        private Dictionary<int, string> _transactionTypes;
+        private int _transactionType;
 
         public CreateTransactionViewModel(IMoneyDataSource moneyDataSource)
         {
@@ -77,6 +80,37 @@ namespace MoneyBurnDown.ViewModel
             }
         }
 
+        public Dictionary<int, string> TransactionTypes
+        {
+            get
+            {
+                return _transactionTypes ?? (_transactionTypes = CreateTransactionTypes());
+            }
+        }
+
+        public int TransactionType
+        {
+            get { return _transactionType; }
+            set
+            {
+                _transactionType = value;
+                RaisePropertyChanged(()=>TransactionType);
+            }
+        }
+
+        private Dictionary<int, string> CreateTransactionTypes()
+        {
+            Dictionary<int, string> types = new Dictionary<int, string>
+                                                {
+                                                    {-1, "Not specified"}
+                                                };
+            foreach (var result in _moneyDataSource.TransactionTypes.Select(x=>new {x.Id, x.Name}))
+            {
+                types.Add(result.Id, result.Name);
+            }
+            return types;
+        }
+
         public override string Validate()
         {
             if (TransactionDate < CurrentBurndown.StartDate || TransactionDate > CurrentBurndown.EndDate)
@@ -99,10 +133,18 @@ namespace MoneyBurnDown.ViewModel
 
         private void CreateNew()
         {
+            TransactionType transactionType = null;
+            if(TransactionType != 0)
+            {
+                int key = TransactionTypes.ElementAt(TransactionType).Key;
+                transactionType = _moneyDataSource.TransactionTypes.Single(x => x.Id == key);
+            }
             CurrentBurndown.Transactions.Add(new Transaction
                                                  {
                                                      Amount = Amount,
-                                                     CreatedAt = TransactionDate
+                                                     CreatedAt = TransactionDate,
+                                                     TransactionType = transactionType,
+                                                     IsDeleted = false
                                                  });
             _moneyDataSource.SubmitChanges();
             Messenger.Default.Send(new TransactionCreatedMessage());

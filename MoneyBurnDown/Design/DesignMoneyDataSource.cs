@@ -10,6 +10,20 @@ namespace MoneyBurnDown.Design
     {
         public DesignMoneyDataSource()
         {
+            List<TransactionType> transactionTypes = new List<TransactionType>
+                                                         {
+                                                             new TransactionType
+                                                                 {
+                                                                     Name = "For transport",
+                                                                     CreatedAt = DateTime.Now
+                                                                 },
+                                                              new TransactionType
+                                                                  {
+                                                                      Name = "For food",
+                                                                      CreatedAt = DateTime.Now
+                                                                  }
+                                                         };
+
             List<BurndownType> burndownTypes = new List<BurndownType>
                 {
                     new BurndownType
@@ -56,24 +70,28 @@ namespace MoneyBurnDown.Design
                             Amount = 100,
                             Burndown = burndowns.First(),
                             CreatedAt = DateTime.Now.AddDays(1),
+                            TransactionType =  transactionTypes.First()
                         },
                     new Transaction
                         {
                             Id = 2,
                             Amount = 100,
                             Burndown = burndowns.First(),
-                            CreatedAt = DateTime.Now.AddDays(15)
+                            CreatedAt = DateTime.Now.AddDays(15),
+                            TransactionType = transactionTypes.Last()
                         },
                 };
 
             Burndowns = new EnumerableQuery<Burndown>(burndowns);
             BurndownTypes = new EnumerableQuery<BurndownType>(burndownTypes);
             Transactions = new EnumerableQuery<Transaction>(transactions);
+            TransactionTypes = new EnumerableQuery<TransactionType>(transactionTypes);
         }
 
         public IQueryable<Burndown> Burndowns { get; private set; }
         public IQueryable<Transaction> Transactions { get; private set; }
         public IQueryable<BurndownType> BurndownTypes { get; private set; }
+        public IQueryable<TransactionType> TransactionTypes { get; private set; }
 
         public void AddBurndownType(string name)
         {
@@ -85,6 +103,16 @@ namespace MoneyBurnDown.Design
         }
 
         public void CreateBurndown(string name, DateTime startDate, DateTime endDate, decimal moneyToSpend, BurndownType burndownType)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void AddTransactionType(string name)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void DeleteTransactionType(TransactionType transactionType)
         {
             throw new NotImplementedException();
         }

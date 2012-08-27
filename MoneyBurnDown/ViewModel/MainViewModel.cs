@@ -16,7 +16,9 @@ namespace MoneyBurnDown.ViewModel
         private readonly IMoneyDataSource _dataSource;
         private int _selectedView;
         private ICommand _createNewCommand;
-        private Burndown _selectedBurndown;
+        private readonly Burndown _selectedBurndown = null;
+        private ICommand _deleteTransactionType;
+        private readonly TransactionType _selectedTransactionType = null;
 
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
@@ -25,15 +27,9 @@ namespace MoneyBurnDown.ViewModel
         {
             _dataSource = dataSource;
             Messenger.Default.Register<TypeCreatedMessage>(this, message => RaisePropertyChanged(() => BurndownTypes));
+            Messenger.Default.Register<TransactionTypeCreatedMessage>(this, message => RaisePropertyChanged(() => TransactionTypes));
             Messenger.Default.Register<RefreshBurndownsMessage>(this, message => RaisePropertyChanged(() => Burndowns));
         }
-
-        //public override void Cleanup()
-        //{
-        //    // Clean up if needed
-
-        //    base.Cleanup();
-        //}
 
         public IEnumerable<Burndown> Burndowns
         {
@@ -44,6 +40,11 @@ namespace MoneyBurnDown.ViewModel
         {
             get { return _dataSource.BurndownTypes.ToList(); }
         }
+
+        public IEnumerable<TransactionType> TransactionTypes
+        {
+            get { return _dataSource.TransactionTypes.ToList(); }
+        } 
 
         public int SelectedView
         {
@@ -71,6 +72,19 @@ namespace MoneyBurnDown.ViewModel
             }
         }
 
+        public TransactionType SelectedTransactionType
+        {
+            get { return _selectedTransactionType; }
+            set
+            {
+                RaisePropertyChanged(()=>SelectedTransactionType);
+                if(value != null)
+                {
+                    
+                }
+            }
+        }
+
         public ICommand CreateNewCommand
         {
             get { return _createNewCommand ?? (_createNewCommand = new RelayCommand(CreateNew)); }
@@ -78,7 +92,37 @@ namespace MoneyBurnDown.ViewModel
 
         private void CreateNew()
         {
-            Messenger.Default.Send(new Uri(SelectedView == 0 ? "/View/CreateBurndownView.xaml" : "/View/CreateTypeView.xaml", UriKind.Relative), "NavigationRequest");
+            Messenger.Default.Send(GetUriForNew(), "NavigationRequest");
+        }
+
+        private Uri GetUriForNew()
+        {
+            switch (SelectedView)
+            {
+                case 0:
+                    return new Uri("/View/CreateBurndownView.xaml", UriKind.Relative);
+                case 1:
+                    return new Uri("/View/CreateTypeView.xaml", UriKind.Relative);
+                case 2:
+                    return new Uri("/View/CreateTransactionTypeView.xaml", UriKind.Relative);
+            }
+
+            return null;
+        }
+
+        public ICommand DeleteTransactionTypeCommand
+        {
+            get
+            {
+                return _deleteTransactionType ?? (_deleteTransactionType = new RelayCommand<TransactionType>(DeleteTransactionType));
+            }
+        }
+
+        private void DeleteTransactionType(TransactionType obj)
+        {
+            _dataSource.Transactions.Where(x=> x.TransactionType != null && x.TransactionType.Id == obj.Id).ToList().ForEach(x=>x.TransactionType = null);
+            _dataSource.DeleteTransactionType(obj);
+            RaisePropertyChanged(() => TransactionTypes);
         }
     }
 }

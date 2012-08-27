@@ -67,6 +67,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Program Files\Laurent Bugnion (GalaSoft)\Mvvm Light Toolkit\Binaries\WP71\Microsoft.Practices.ServiceLocation.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Xna.Framework" />
     <Reference Include="Microsoft.Xna.Framework.Input.Touch" />
     <Reference Include="System.Data.Linq" />
     <Reference Include="System.Windows.Interactivity">
@@ -86,15 +87,18 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\ChartControl.xaml.cs">
-      <DependentUpon>ChartControl.xaml</DependentUpon>
-    </Compile>
+    <Compile Include="Controls\ChartCanvas.cs" />
+    <Compile Include="Converters\BooleanToVisibilityConverter.cs" />
+    <Compile Include="Infrastructure\PinEventArgs.cs" />
+    <Compile Include="Model\Entities\TransactionType.cs" />
     <Compile Include="Model\Messages\TransactionCreatedMessage.cs" />
     <Compile Include="Design\DesignMoneyDataSource.cs" />
     <Compile Include="Model\Messages\RefreshBurndownsMessage.cs" />
+    <Compile Include="Model\Messages\TransactionTypeCreatedMessage.cs" />
     <Compile Include="Model\Messages\TypeCreatedMessage.cs" />
     <Compile Include="ViewModel\ChartFullScreenViewModel.cs" />
     <Compile Include="ViewModel\CreateBurndownViewModel.cs" />
+    <Compile Include="ViewModel\CreateTransactionTypeViewModel.cs" />
     <Compile Include="ViewModel\CreateTransactionViewModel.cs" />
     <Compile Include="ViewModel\CreateTypeViewModel.cs" />
     <Compile Include="ViewModel\ShowBurndownViewModel.cs" />
@@ -104,6 +108,9 @@
     </Compile>
     <Compile Include="View\CreateBurndownView.xaml.cs">
       <DependentUpon>CreateBurndownView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\CreateTransactionTypeView.xaml.cs">
+      <DependentUpon>CreateTransactionTypeView.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\CreateTransactionView.xaml.cs">
       <DependentUpon>CreateTransactionView.xaml</DependentUpon>
@@ -132,15 +139,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Page Include="Controls\ChartControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="View\ChartFullscreenView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\CreateBurndownView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\CreateTransactionTypeView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -174,6 +181,8 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Images\appbar.fullscreen.rest.png" />
+    <Content Include="Images\appbar.pin.png" />
+    <Content Include="Images\appbar.unpin.png" />
     <Content Include="SplashScreenImage.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

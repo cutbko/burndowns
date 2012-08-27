@@ -95,7 +95,62 @@ namespace MoneyBurnDown.Model.Entities
             }
         }
 
+        [Column]
+        private int? _transactionTypeId;
+
+        private EntityRef<TransactionType> _transactionType;
+
+        [Association(Name = "TransactionTypeToTransaction", Storage = "_transactionType", ThisKey = "_transactionTypeId", OtherKey = "Id", IsForeignKey = true)]
+        public TransactionType TransactionType
+        {
+            get
+            {
+                return _transactionType.Entity;
+            }
+            set
+            {
+                TransactionType previousValue = _transactionType.Entity;
+                if (((previousValue != value) || (_transactionType.HasLoadedOrAssignedValue == false)))
+                {
+                    NotifyPropertyChanging("TransactionType");
+                    if ((previousValue != null))
+                    {
+                        _transactionType.Entity = null;
+                        previousValue.Transactions.Remove(this);
+                    }
+                    _transactionType.Entity = value;
+                    if ((value != null))
+                    {
+                        value.Transactions.Add(this);
+                        _transactionTypeId = value.Id;
+                    }
+                    else
+                    {
+                        _transactionTypeId = default(int?);
+                    }
+                    NotifyPropertyChanged("TransactionType");
+                }
+            }
+        }
+
         [Column(IsVersion = true)]
         private Binary _version;
+
+        private bool? _isDeleted;
+
+        [Column]
+        public virtual bool? IsDeleted
+        {
+            get { return _isDeleted; }
+            set
+            {
+                if (_isDeleted != value)
+                {
+                    NotifyPropertyChanging("IsDeleted");
+                    _isDeleted = value;
+                    NotifyPropertyChanged("IsDeleted");
+                }
+            }
+        }
     }
 }

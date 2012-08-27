@@ -13,10 +13,16 @@ namespace MoneyBurnDown.Model
 
         IQueryable<BurndownType> BurndownTypes { get; }
 
+        IQueryable<TransactionType> TransactionTypes { get; }
+
         void AddBurndownType(string name);
 
         void SubmitChanges();
 
         void CreateBurndown(string name, DateTime startDate, DateTime endDate, decimal moneyToSpend, BurndownType burndownType);
+        
+        void AddTransactionType(string name);
+
+        void DeleteTransactionType(TransactionType transactionType);
     }
 }

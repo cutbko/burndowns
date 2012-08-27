@@ -106,11 +106,16 @@ namespace MoneyBurnDown.ViewModel
             }
         }
 
+        public CreateTransactionTypeViewModel CreateTransactionType
+        {
+            get { return new CreateTransactionTypeViewModel(ServiceLocator.Current.GetInstance<IMoneyDataSource>()); }
+        }
         /// <summary>
         /// Cleans up all the resources.
         /// </summary>
         public static void Cleanup()
         {
+            ServiceLocator.Current.GetInstance<IMoneyDataSource>().Dispose();
         }
     }
 }

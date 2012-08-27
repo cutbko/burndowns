@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Windows;
@@ -12,32 +13,16 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using GalaSoft.MvvmLight.Messaging;
 using Microsoft.Phone.Controls;
+using Microsoft.Phone.Shell;
 using MoneyBurnDown.ViewModel;
 
 namespace MoneyBurnDown.View
 {
     public partial class ShowBurndownView : PhoneApplicationPage
     {
-        private readonly GestureListener _gestureListener;
         public ShowBurndownView()
         {
             InitializeComponent();
-            _gestureListener = GestureService.GetGestureListener(this);
-            _gestureListener.PinchStarted += ShowBurndownView_PinchStarted;
-            _gestureListener.PinchDelta += _gestureListener_PinchDelta;
-            _gestureListener.PinchCompleted += _gestureListener_PinchCompleted;
-        }
-
-        void _gestureListener_PinchCompleted(object sender, PinchGestureEventArgs e)
-        {
-        }
-
-        void _gestureListener_PinchDelta(object sender, PinchGestureEventArgs e)
-        {
-        }
-
-        void ShowBurndownView_PinchStarted(object sender, PinchStartedGestureEventArgs e)
-        {
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -49,17 +34,34 @@ namespace MoneyBurnDown.View
                 int burndownId = int.Parse(NavigationContext.QueryString["burndownId"]);
                 ViewModel.Initialize(burndownId);
                 Messenger.Default.Register<Uri>(this, "NavigationRequest", uri => NavigationService.Navigate(uri));
+                SetPinbutton(ViewModel.IsPinned);
+                ViewModel.Pinned += ViewModelPinned;
+            }
+        }
+
+        void ViewModelPinned(object sender, Infrastructure.PinEventArgs e)
+        {
+            bool isPinned = e.IsPinned;
+            SetPinbutton(isPinned);
+        }
+
+        private void SetPinbutton(bool isPinned)
+        {
+            if (isPinned)
+            {
+                PinButton.Text = "Unpin";
+                PinButton.IconUri = new Uri("/Images/appbar.unpin.png", UriKind.Relative);
+            }
+            else
+            {
+                PinButton.Text = "Pin";
+                PinButton.IconUri = new Uri("/Images/appbar.pin.png", UriKind.Relative);
             }
         }
 
         private ShowBurndownViewModel ViewModel
         {
             get { return DataContext as ShowBurndownViewModel; }
-        }
-
-        private void chartControl_DoubleTap(object sender, System.Windows.Input.GestureEventArgs e)
-        {
-
         }
     }
 }
