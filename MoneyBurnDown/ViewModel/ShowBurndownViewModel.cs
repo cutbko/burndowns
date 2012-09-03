@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO.IsolatedStorage;
 using System.Linq;
+using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media.Imaging;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
 using Microsoft.Phone.Shell;
+using MoneyBurnDown.Controls;
 using MoneyBurnDown.Infrastructure;
 using MoneyBurnDown.Model;
 using MoneyBurnDown.Model.Entities;
@@ -24,7 +28,8 @@ namespace MoneyBurnDown.ViewModel
         private int _selectedPivot;
         private ICommand _pinCommand;
 
-        private Uri NavigationUri;
+        private Uri _navigationUri;
+        private ICommand _showChartLegendCommand;
 
         public ShowBurndownViewModel(IMoneyDataSource moneyDataSource)
         {
@@ -39,10 +44,12 @@ namespace MoneyBurnDown.ViewModel
                                                                                 RaisePropertyChanged(() => DailyExpenses);
                                                                                 RaisePropertyChanged(() => AverageDailyExpences);
                                                                                 RaisePropertyChanged(() => ExpencesByType);
-                                                                                RaisePropertyChanged(() => CurrentBurndown.MoneyLeft);
+                                                                                RaisePropertyChanged(() => MoneyLeft);
+                                                                                RaisePropertyChanged(() => DaysLeft);
+                                                                                RaisePropertyChanged(() => MoneyPerDayLeft);
                                                                                 if(IsPinned)
                                                                                 {
-                                                                                    ShellTile.ActiveTiles.Single(x=>x.NavigationUri == NavigationUri).Update(TileData);
+                                                                                    ShellTile.ActiveTiles.Single(x=>x.NavigationUri == _navigationUri).Update(TileData);
                                                                                 }
                                                                             });
         }
@@ -50,7 +57,22 @@ namespace MoneyBurnDown.ViewModel
         public void Initialize(int burndownId)
         {
             CurrentBurndown = _moneyDataSource.Burndowns.Single(x => x.Id == burndownId);
-            NavigationUri = new Uri(string.Format("/View/ShowBurndownView.xaml?burndownId={0}", burndownId), UriKind.Relative);
+            _navigationUri = new Uri(string.Format("/View/ShowBurndownView.xaml?burndownId={0}", burndownId), UriKind.Relative);
+        }
+
+        public decimal DaysLeft
+        {
+            get { return CurrentBurndown.DaysLeft; }
+        }
+
+        public decimal MoneyLeft
+        {
+            get { return CurrentBurndown.MoneyLeft; }
+        }
+
+        public decimal MoneyPerDayLeft
+        {
+            get { return CurrentBurndown.MoneyPerDayLeft; }
         }
 
         public Burndown CurrentBurndown
@@ -67,6 +89,9 @@ namespace MoneyBurnDown.ViewModel
                     RaisePropertyChanged(() => DailyExpenses);
                     RaisePropertyChanged(() => AverageDailyExpences);
                     RaisePropertyChanged(() => ExpencesByType);
+                    RaisePropertyChanged(() => MoneyLeft);
+                    RaisePropertyChanged(() => DaysLeft);
+                    RaisePropertyChanged(() => MoneyPerDayLeft);
                 }
             }
         }
@@ -167,7 +192,8 @@ namespace MoneyBurnDown.ViewModel
 
         private void Pin()
         {
-            ShellTile shellTile = ShellTile.ActiveTiles.FirstOrDefault(x => x.NavigationUri == NavigationUri);
+            ShellTile shellTile = ShellTile.ActiveTiles.FirstOrDefault(x => x.NavigationUri == _navigationUri);
+            
             if(shellTile != null)
             {
                 shellTile.Delete();
@@ -175,7 +201,7 @@ namespace MoneyBurnDown.ViewModel
             }
             else
             {
-                ShellTile.Create(NavigationUri, TileData);
+                ShellTile.Create(_navigationUri, TileData);
                 OnPinned(true);
             }
         }
@@ -188,14 +214,44 @@ namespace MoneyBurnDown.ViewModel
                            {
                                BackTitle = CurrentBurndown.EndDate.ToShortDateString(),
                                Title = CurrentBurndown.Name,
-                               BackContent = CurrentBurndown.MoneyLeft.ToString(CultureInfo.InvariantCulture)
+                               BackContent = CurrentBurndown.MoneyLeft.ToString(CultureInfo.InvariantCulture),
+                               BackgroundImage = CreateLiveTileImage()
                            };
             }
         }
 
+        private Uri CreateLiveTileImage()
+        {
+            ChartCanvas chartCanvas = new ChartCanvas
+                                          {
+                                              Burndown = CurrentBurndown, 
+                                              Width = 173, 
+                                              Height = 173
+                                          };
+
+            chartCanvas.CreateGraph(new Rect(0, 0, 173, 173));
+
+            WriteableBitmap bmp = new WriteableBitmap(173, 173);
+            bmp.Render(chartCanvas, null);
+            bmp.Invalidate();
+
+            var isf = IsolatedStorageFile.GetUserStoreForApplication();
+            var filename = "/Shared/ShellContent/tile" + CurrentBurndown.Id + ".jpg";
+            if (!isf.DirectoryExists("/Shared/ShellContent"))
+            {
+                isf.CreateDirectory("/Shared/ShellContent");
+            }
+            using (var stream = isf.OpenFile(filename, System.IO.FileMode.OpenOrCreate))
+            {
+                bmp.SaveJpeg(stream, 173, 173, 0, 100);
+            }
+
+            return new Uri("isostore:" + filename, UriKind.Absolute);
+        }
+
         public bool IsPinned
         {
-            get { return ShellTile.ActiveTiles.FirstOrDefault(x => x.NavigationUri == NavigationUri) != null; }
+            get { return ShellTile.ActiveTiles.FirstOrDefault(x => x.NavigationUri == _navigationUri) != null; }
         }
 
         public ICommand ToogleFullscreenCommand
@@ -217,14 +273,8 @@ namespace MoneyBurnDown.ViewModel
                 {
                     _selectedPivot = value;
                     RaisePropertyChanged(() => SelectedPivot);
-                    RaisePropertyChanged(() => IsFullScreenVisible);
                 }
             }
-        }
-
-        public bool IsFullScreenVisible
-        {
-            get { return SelectedPivot == 3; }
         }
 
         public event EventHandler<PinEventArgs> Pinned;
@@ -233,6 +283,16 @@ namespace MoneyBurnDown.ViewModel
         {
             EventHandler<PinEventArgs> handler = Pinned;
             if (handler != null) handler(this, new PinEventArgs {IsPinned = isPinned});
+        }
+
+        public ICommand ShowChartLegendCommand
+        {
+            get { return _showChartLegendCommand ?? (_showChartLegendCommand = new RelayCommand(ShowChartLegend)); }
+        }
+
+        private void ShowChartLegend()
+        {
+            Messenger.Default.Send(new Uri("/View/ShowChartLegendView.xaml", UriKind.Relative), "NavigationRequest");
         }
     }
 }

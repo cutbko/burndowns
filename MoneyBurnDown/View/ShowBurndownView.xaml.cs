@@ -33,10 +33,15 @@ namespace MoneyBurnDown.View
             {
                 int burndownId = int.Parse(NavigationContext.QueryString["burndownId"]);
                 ViewModel.Initialize(burndownId);
-                Messenger.Default.Register<Uri>(this, "NavigationRequest", uri => NavigationService.Navigate(uri));
+                Messenger.Default.Register<Uri>(this, "NavigationRequest", Navigate);
                 SetPinbutton(ViewModel.IsPinned);
                 ViewModel.Pinned += ViewModelPinned;
             }
+        }
+
+        private void Navigate(Uri uri)
+        {
+            NavigationService.Navigate(uri);
         }
 
         void ViewModelPinned(object sender, Infrastructure.PinEventArgs e)

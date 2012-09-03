@@ -97,6 +97,16 @@ namespace MoneyBurnDown.Model.Entities
             get { return MoneyOnStart - Transactions.Sum(x => x.Amount); }
         }
 
+        public decimal MoneyPerDayLeft
+        {
+            get { return MoneyLeft / DaysLeft; }
+        }
+
+        public decimal DaysLeft
+        {
+            get { return (decimal)(EndDate - DateTime.Today).TotalDays; }
+        }
+
         [Column(CanBeNull = false)]
         public virtual decimal MoneyOnStart { get; set; }
 
@@ -152,6 +162,11 @@ namespace MoneyBurnDown.Model.Entities
         private Binary _version;
 
         private bool? _isDeleted;
+
+        public bool IsFinished
+        {
+            get { return EndDate > DateTime.Today; }
+        }
 
         [Column]
         public virtual bool? IsDeleted

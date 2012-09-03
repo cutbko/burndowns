@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows;
 using System.Windows.Input;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
@@ -120,6 +121,8 @@ namespace MoneyBurnDown.ViewModel
 
         private void DeleteTransactionType(TransactionType obj)
         {
+            if(MessageBox.Show("Are you sure you want to delete this expence type?", string.Empty, MessageBoxButton.OKCancel)==MessageBoxResult.Cancel)
+                return;
             _dataSource.Transactions.Where(x=> x.TransactionType != null && x.TransactionType.Id == obj.Id).ToList().ForEach(x=>x.TransactionType = null);
             _dataSource.DeleteTransactionType(obj);
             RaisePropertyChanged(() => TransactionTypes);

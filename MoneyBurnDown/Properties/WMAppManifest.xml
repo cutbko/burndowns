@@ -1,23 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 
 <Deployment xmlns="http://schemas.microsoft.com/windowsphone/2009/deployment" AppPlatformVersion="7.1">
-  <App xmlns="" ProductID="{4512bda3-6985-473f-bbe0-8be94d496d21}" Title="MoneyBurnDown" RuntimeType="Silverlight" Version="1.0.0.0" Genre="apps.normal"  Author="MoneyBurnDown author" Description="Sample description" Publisher="MoneyBurnDown publisher">
-    <IconPath IsRelative="true" IsResource="false">ApplicationIcon.jpg</IconPath>
+  <App xmlns="" BitsPerPixel="32" ProductID="{4512bda3-6985-473f-bbe0-8be94d496d21}" Title="Money Burndowns" RuntimeType="Silverlight" Version="1.0.0.0" Genre="apps.normal"  Author="cutbko" Description="This is a free and ad-less program that will help you to distribute your money uniformly over a period (a month, by salary etc.) and monitor your expenses." Publisher="cutbko">
+    <IconPath IsRelative="true" IsResource="false">62.png</IconPath>
     <Capabilities>
-      <Capability Name="ID_CAP_GAMERSERVICES"/>
-      <Capability Name="ID_CAP_IDENTITY_DEVICE"/>
-      <Capability Name="ID_CAP_IDENTITY_USER"/>
-      <Capability Name="ID_CAP_LOCATION"/>
-      <Capability Name="ID_CAP_MEDIALIB"/>
-      <Capability Name="ID_CAP_MICROPHONE"/>
-      <Capability Name="ID_CAP_NETWORKING"/>
-      <Capability Name="ID_CAP_PHONEDIALER"/>
-      <Capability Name="ID_CAP_PUSH_NOTIFICATION"/>
-      <Capability Name="ID_CAP_SENSORS"/>
-      <Capability Name="ID_CAP_WEBBROWSERCOMPONENT"/>
-      <Capability Name="ID_CAP_ISV_CAMERA"/>
-      <Capability Name="ID_CAP_CONTACTS"/>
-      <Capability Name="ID_CAP_APPOINTMENTS"/>
     </Capabilities>
     <Tasks>
       <DefaultTask  Name ="_default" NavigationPage="View/MainPage.xaml"/>
@@ -25,9 +11,9 @@
     <Tokens>
       <PrimaryToken TokenID="MoneyBurnDownToken" TaskName="_default">
         <TemplateType5>
-          <BackgroundImageURI IsRelative="true" IsResource="false">Background.jpg</BackgroundImageURI>
+          <BackgroundImageURI IsRelative="true" IsResource="false">173.png</BackgroundImageURI>
           <Count>0</Count>
-          <Title>MoneyBurnDown</Title>
+          <Title>Money Burndowns</Title>
         </TemplateType5>
       </PrimaryToken>
     </Tokens>

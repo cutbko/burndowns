@@ -3,7 +3,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
-    xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
+    xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:Controls="clr-namespace:MoneyBurnDown.Controls" FontFamily="{StaticResource PhoneFontFamilyNormal}"
@@ -17,12 +17,9 @@
         <Controls:ChartCanvas x:Name="chartControl" 
                               Margin="8" 
                               Burndown="{Binding CurrentBurndown}"
-                              >
+                              AreNumbersEnabled="True">
             <Controls:ChartCanvas.RenderTransform>
-                <TransformGroup>
-                    <TranslateTransform x:Name="TranslateTransform"/>
-                    <ScaleTransform x:Name="ScaleTransform"/>
-                </TransformGroup>
+                <TransformGroup x:Name="Transforms" />
             </Controls:ChartCanvas.RenderTransform>
         </Controls:ChartCanvas>
     </Grid>

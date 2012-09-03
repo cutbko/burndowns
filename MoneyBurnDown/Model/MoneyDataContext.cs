@@ -24,12 +24,14 @@ namespace MoneyBurnDown.Model
                         new BurndownType
                             {
                                 Name = "USD",
-                                CreatedAt = DateTime.Now
+                                CreatedAt = DateTime.Now,
+                                IsDeleted = false
                             },
                         new BurndownType
                             {
                                 Name = "EUR",
-                                CreatedAt = DateTime.Now
+                                CreatedAt = DateTime.Now,
+                                IsDeleted = false
                             }
                     });
 
@@ -38,17 +40,19 @@ namespace MoneyBurnDown.Model
                                                            new TransactionType
                                                                {
                                                                    Name = "For food",
-                                                                   CreatedAt = DateTime.Now
+                                                                   CreatedAt = DateTime.Now,
+                                                                   IsDeleted = false
                                                                },
                                                            new TransactionType
                                                                {
                                                                    Name = "For transport",
-                                                                   CreatedAt = DateTime.Now
+                                                                   CreatedAt = DateTime.Now,
+                                                                   IsDeleted = false
                                                                }
                                                        });
                 SubmitChanges();
                 DatabaseSchemaUpdater databaseSchemaUpdater = this.CreateDatabaseSchemaUpdater();
-                databaseSchemaUpdater.DatabaseSchemaVersion = 2;
+                databaseSchemaUpdater.DatabaseSchemaVersion = 3;
                 databaseSchemaUpdater.Execute();
             }
             else

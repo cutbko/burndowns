@@ -13,6 +13,7 @@ using System.Windows.Shapes;
 using GalaSoft.MvvmLight.Messaging;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
+using Microsoft.Xna.Framework.Input.Touch;
 using MoneyBurnDown.ViewModel;
 
 namespace MoneyBurnDown
@@ -61,6 +62,8 @@ namespace MoneyBurnDown
                 // and consume battery power when the user is not using the phone.
                 PhoneApplicationService.Current.UserIdleDetectionMode = IdleDetectionMode.Disabled;
             }
+
+            TouchPanel.EnabledGestures = GestureType.DoubleTap | GestureType.DragComplete | GestureType.FreeDrag | GestureType.VerticalDrag | GestureType.HorizontalDrag | GestureType.Pinch | GestureType.PinchComplete;
         }
 
         // Code to execute when the application is launching (eg, from Start)

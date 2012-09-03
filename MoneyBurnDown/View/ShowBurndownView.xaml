@@ -12,7 +12,7 @@
     xmlns:Controls="clr-namespace:MoneyBurnDown.Controls"
     xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
     xmlns:Command="clr-namespace:GalaSoft.MvvmLight.Command;assembly=GalaSoft.MvvmLight.Extras.WP71"
-    FontFamily="{StaticResource PhoneFontFamilyNormal}"
+    xmlns:Converters="clr-namespace:MoneyBurnDown.Converters" FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}"
     SupportedOrientations="Portrait" Orientation="Portrait"
@@ -21,6 +21,9 @@
     shell:SystemTray.IsVisible="True">
     <!--LayoutRoot is the root grid where all page content is placed-->
     <Grid x:Name="LayoutRoot" Background="Transparent">
+        <Grid.Resources>
+            <Converters:BooleanToVisibilityConverter x:Key="boolToVisConverter"/>
+        </Grid.Resources>
         <!--Pivot Control-->
         <controls:Pivot Title="{Binding CurrentBurndown.Name}" SelectedIndex="{Binding SelectedPivot, Mode=TwoWay}">
             <controls:PivotItem Header="Burndown info">
@@ -31,8 +34,25 @@
                     <TextBlock Text="{Binding CurrentBurndown.EndDate, StringFormat='Due date: {0:dd.MM.yyyy}'}" Style="{StaticResource PhoneTextNormalStyle}"/>
                     <TextBlock Text="{Binding ExpectedDailyExpences, StringFormat='Expected daily expences: {0:00.00}'}" Style="{StaticResource PhoneTextNormalStyle}"/>
                     <TextBlock Text="{Binding AverageDailyExpences, StringFormat='Average daily expences: {0:00.00}'}" Style="{StaticResource PhoneTextNormalStyle}"/>
-                    <TextBlock Text="{Binding CurrentBurndown.MoneyLeft, StringFormat='Money left: {0}'}" Style="{StaticResource PhoneTextNormalStyle}"/>
+                    <StackPanel Visibility="{Binding CurrentBurndown.IsFinished, Converter={StaticResource boolToVisConverter}}" >
+                        <TextBlock Text="{Binding DaysLeft, StringFormat='Days left: {0:0}'}" Style="{StaticResource PhoneTextNormalStyle}"/>
+                        <TextBlock Text="{Binding MoneyLeft, StringFormat='Money left: {0:00.00}'}" Style="{StaticResource PhoneTextNormalStyle}"/>
+                        <TextBlock Text="{Binding MoneyPerDayLeft, StringFormat='Money per day left: {0:00.00}'}" Style="{StaticResource PhoneTextNormalStyle}"/>
+                    </StackPanel>
                 </StackPanel>
+            </controls:PivotItem>
+
+            <controls:PivotItem Header="Burndown chart">
+                <Controls:ChartCanvas x:Name="chartControl" 
+                                      Margin="8" 
+                                      Burndown="{Binding CurrentBurndown}"
+                                      AreGesturesEnabled="{Binding IsFullScreenVisible}">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="DoubleTapped">
+                            <Command:EventToCommand Command="{Binding ToogleFullscreenCommand}"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </Controls:ChartCanvas>
             </controls:PivotItem>
 
             <controls:PivotItem Header="Expenses list">
@@ -59,19 +79,6 @@
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>
-            </controls:PivotItem>
-
-            <controls:PivotItem Header="Burndown chart">
-                <Controls:ChartCanvas x:Name="chartControl" 
-                                      Margin="8" 
-                                      Burndown="{Binding CurrentBurndown}"
-                                      AreGesturesEnabled="{Binding IsFullScreenVisible}">
-                    <i:Interaction.Triggers>
-                        <i:EventTrigger EventName="DoubleTapped">
-                            <Command:EventToCommand Command="{Binding ToogleFullscreenCommand}"/>
-                        </i:EventTrigger>
-                    </i:Interaction.Triggers>
-                </Controls:ChartCanvas>
             </controls:PivotItem>
 
             <controls:PivotItem Header="Expences by type">
@@ -103,7 +110,7 @@
                                                                  Text="Pin" 
                                                                  Command="{Binding PinCommand}"/>
             <BindableApplicationBar:BindableApplicationBar.MenuItems>
-                
+                <BindableApplicationBar:BindableApplicationBarMenuItem Text="Show chart legend" Command="{Binding ShowChartLegendCommand}"/>
             </BindableApplicationBar:BindableApplicationBar.MenuItems>
         </BindableApplicationBar:BindableApplicationBar>
     </BindableApplicationBar:Bindable.ApplicationBar>
